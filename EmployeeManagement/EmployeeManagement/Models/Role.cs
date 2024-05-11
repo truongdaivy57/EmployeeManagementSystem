@@ -1,9 +1,14 @@
-﻿namespace EmployeeManagement.Model
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace EmployeeManagement.Model
 {
-    public class Role
+    [Table("Role")]
+    public class Role : IdentityRole<Guid>
     {
-        public int Id { get; set; }
+        [Required]
+        [Column(TypeName = "nvarchar(255)")]
         public string Name { get; set; }
-        public List<User> Users { get; set; }
     }
 }

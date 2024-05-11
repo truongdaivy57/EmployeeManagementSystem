@@ -1,14 +1,27 @@
-﻿namespace EmployeeManagement.Model
+﻿using EmployeeManagement.Models;
+using Microsoft.AspNetCore.Identity;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace EmployeeManagement.Model
 {
-    public class User
+    [Table("User")]
+    public class User : IdentityUser<Guid>
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
-        public int RoleId { get; set; }
-        public int DepartmentId { get; set; }
-        public Role Role { get; set; }
-        public Department Department { get; set; }
+        [Required]
+        [Column(TypeName = "nvarchar(255)")]
+        public string FirstName { get; set; }
+        [Required]
+        [Column(TypeName = "nvarchar(255)")]
+        public string LastName { get; set; }
+        [DefaultValue(true)]
+        public bool IsActive { get; set; }
+        public string? VerificationToken { get; set; }
+        public string? ResetToken { get; set; }
+        public DateTime ResetTokenExpire {  get; set; }
+        //public Guid DepartmentId { get; set; }
+        //public Department Department { get; set; }
+        public ICollection<RefreshToken> RefreshTokens { get; set; }
     }
 }
