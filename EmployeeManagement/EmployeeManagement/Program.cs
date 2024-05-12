@@ -1,5 +1,6 @@
 using EmployeeManagement.Data;
 using EmployeeManagement.Model;
+using EmployeeManagement.Repositories;
 using EmployeeManagement.Repository;
 using EmployeeManagement.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -38,9 +39,9 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
     };
 });
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
-
+builder.Services.AddScoped<IRepository<User>, UserRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 

@@ -1,5 +1,6 @@
 ﻿using EmployeeManagement.Dtos;
 using EmployeeManagement.Model;
+using EmployeeManagement.Repositories;
 using EmployeeManagement.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -41,22 +42,23 @@ namespace EmployeeManagement.Controllers
             return Ok(result);
         }
 
-        //[HttpGet("{userId}")]
-        //public async Task<ActionResult<User>> GetUser(int userId)
-        //{
-        //    var user = await _userService.GetUserById(userId);
-        //    if (user == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return user;
-        //}
+        [HttpGet("{userId}")]
+        public IActionResult GetUser(Guid userId)
+        {
+            var user = _userService.GetUserById(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
 
-        //[HttpGet]
-        //public async Task<ActionResult<List<User>>> GetAllUsers()
-        //{
-        //    return await _userService.GetAllUsers();
-        //}
+        [HttpGet]
+        [Route("api/[controller]/get-all-users")]
+        public IActionResult GetAllUsers()
+        {
+            return Ok(_userService.GetAllUsers());
+        }
 
         //[HttpPost]
         //public async Task<ActionResult<User>> AddUser(User user)
@@ -76,11 +78,11 @@ namespace EmployeeManagement.Controllers
         //    return NoContent();
         //}
 
-        //[HttpDelete("{userId}")]
-        //public async Task<IActionResult> DeleteUser(int userId)
-        //{
-        //    await _userService.DeleteUser(userId);
-        //    return NoContent();
-        //}
+        [HttpDelete("{userId}")]
+        public IActionResult DeleteUser(Guid userId)
+        {
+            _userService.DeleteUser(userId);
+            return Ok(_userService.GetAllUsers());
+        }
     }
 }

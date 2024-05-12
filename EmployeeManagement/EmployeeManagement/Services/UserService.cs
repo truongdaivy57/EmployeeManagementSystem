@@ -1,5 +1,6 @@
 ﻿using EmployeeManagement.Dtos;
 using EmployeeManagement.Model;
+using EmployeeManagement.Repositories;
 using EmployeeManagement.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -11,11 +12,11 @@ namespace EmployeeManagement.Service
 {
     public interface IUserService
     {
-        //Task<User> GetUserById(int userId);
-        //Task<List<User>> GetAllUsers();
+        User GetUserById(Guid userId);
+        IEnumerable<User> GetAllUsers();
         //Task AddUser(User user);
         //Task UpdateUser(User user);
-        //Task DeleteUser(int userId);
+        void DeleteUser(Guid userId);
         Task<IdentityResult> SignUpAsync(RequestSignUpDto dto);
         Task<string> SignInAsync(RequestSignInDto dto);
     }
@@ -25,14 +26,14 @@ namespace EmployeeManagement.Service
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
-        private readonly IUserRepository _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserService(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration, IUserRepository userRepository)
+        public UserService(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
-            _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<string> SignInAsync(RequestSignInDto dto)
@@ -76,15 +77,15 @@ namespace EmployeeManagement.Service
             return await _userManager.CreateAsync(user, dto.Password);
         }
 
-        //public async Task<User> GetUserById(int userId)
-        //{
-        //    return await _userRepository.GetUserById(userId);
-        //}
+        public User GetUserById(Guid userId)
+        {
+            return _unitOfWork.UserRepository.Get(userId);
+        }
 
-        //public async Task<List<User>> GetAllUsers()
-        //{
-        //    return await _userRepository.GetAllUsers();
-        //}
+        public IEnumerable<User> GetAllUsers()
+        {
+            return _unitOfWork.UserRepository.All();
+        }
 
         //public async Task AddUser(User user)
         //{
@@ -96,9 +97,10 @@ namespace EmployeeManagement.Service
         //    await _userRepository.UpdateUser(user);
         //}
 
-        //public async Task DeleteUser(int userId)
-        //{
-        //    await _userRepository.DeleteUser(userId);
-        //}
+        public void DeleteUser(Guid userId)
+        {
+            _unitOfWork.UserRepository.Delete(userId);
+            _unitOfWork.SaveChanges();
+        }
     }
 }
