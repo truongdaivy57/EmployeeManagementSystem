@@ -7,9 +7,7 @@ namespace EmployeeManagement.Repositories
     public interface IUnitOfWork
     {
         IRepository<User> UserRepository { get; }
-        //IRepository<Order> OrderRepository { get; }
-        //IRepository<Product> ProductRepository { get; }
-
+        IRepository<Department> DepartmentRepository { get; }
         void SaveChanges();
     }
 
@@ -17,8 +15,7 @@ namespace EmployeeManagement.Repositories
     {
         private readonly AppDbContext _context;
         private IRepository<User> _userRepository;
-        //private IRepository<Order> orderRepository;
-        //private IRepository<Product> productRepository;
+        private IRepository<Department> _departmentRepository;
 
         public UnitOfWork(AppDbContext context)
         {
@@ -38,31 +35,18 @@ namespace EmployeeManagement.Repositories
             }
         }
 
-        //public IRepository<Order> OrderRepository
-        //{
-        //    get
-        //    {
-        //        if (orderRepository == null)
-        //        {
-        //            orderRepository = new OrderRepository(context);
-        //        }
+        public IRepository<Department> DepartmentRepository
+        {
+            get
+            {
+                if (_departmentRepository == null)
+                {
+                    _departmentRepository = new DepartmentRepository(_context);
+                }
 
-        //        return orderRepository;
-        //    }
-        //}
-
-        //public IRepository<Product> ProductRepository
-        //{
-        //    get
-        //    {
-        //        if (productRepository == null)
-        //        {
-        //            productRepository = new ProductRepository(context);
-        //        }
-
-        //        return productRepository;
-        //    }
-        //}
+                return _departmentRepository;
+            }
+        }
 
         public void SaveChanges()
         {

@@ -1,11 +1,12 @@
 ﻿using EmployeeManagement.Data;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace EmployeeManagement.Repositories
 {
     public abstract class GenericRepository<T> : IRepository<T> where T : class
     {
-        protected AppDbContext _context;
+        protected readonly AppDbContext _context;
 
         public GenericRepository(AppDbContext context)
         {
@@ -56,6 +57,16 @@ namespace EmployeeManagement.Repositories
         public void SaveChanges()
         {
             _context.SaveChanges();
+        }
+
+        public virtual IEnumerable<T> GetAllIncluding(params Expression<Func<T, object>>[] includeProperties)
+        {
+            IQueryable<T> query = _context.Set<T>();
+            foreach (var includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+            return query.ToList();
         }
     }
 }

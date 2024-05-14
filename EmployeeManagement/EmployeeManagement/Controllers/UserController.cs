@@ -1,8 +1,6 @@
-﻿using EmployeeManagement.Dtos;
-using EmployeeManagement.Model;
-using EmployeeManagement.Repositories;
+﻿using AutoMapper;
+using EmployeeManagement.Dtos;
 using EmployeeManagement.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeManagement.Controllers
@@ -11,13 +9,16 @@ namespace EmployeeManagement.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IMapper _mapper;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IMapper mapper)
         {
             _userService = userService;
+            _mapper = mapper;
         }
 
-        [HttpPost("SignUp")]
+        [HttpPost]
+        [Route("api/[controller]/sign-up")]
         public async Task<IActionResult> SignUp(RequestSignUpDto dto)
         {
             var result = await _userService.SignUpAsync(dto);
@@ -29,7 +30,15 @@ namespace EmployeeManagement.Controllers
             return Unauthorized();
         }
 
-        [HttpPost("SignIn")]
+        [HttpPost]
+        [Route("api/[controller]/confirm-email")]
+        public async Task<IActionResult> ConfirmEmail(string email, string otp)
+        {
+            return await _userService.ConfirmEmail(email, otp);
+        }
+
+        [HttpPost]
+        [Route("api/[controller]/sign-in")]
         public async Task<IActionResult> SignIn(RequestSignInDto dto)
         {
             var result = await _userService.SignInAsync(dto);
@@ -42,7 +51,8 @@ namespace EmployeeManagement.Controllers
             return Ok(result);
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet]
+        [Route("api/[controller]/get-user")]
         public IActionResult GetUser(Guid userId)
         {
             var user = _userService.GetUserById(userId);
@@ -60,25 +70,23 @@ namespace EmployeeManagement.Controllers
             return Ok(_userService.GetAllUsers());
         }
 
-        //[HttpPost]
-        //public async Task<ActionResult<User>> AddUser(User user)
-        //{
-        //    await _userService.AddUser(user);
-        //    return CreatedAtAction(nameof(GetUser), new { userId = user.Id }, user);
-        //}
+        [HttpPut]
+        [Route("api/[controller]/update-user")]
+        public IActionResult UpdateUser(Guid userId, UserDto dto)
+        {
+            var existUser = _userService.GetUserById(userId);
+            if (existUser == null)
+            {
+                return BadRequest();
+            }
 
-        //[HttpPut("{userId}")]
-        //public async Task<IActionResult> UpdateUser(Guid userId, User user)
-        //{
-        //    if (userId != user.Id)
-        //    {
-        //        return BadRequest();
-        //    }
-        //    await _userService.UpdateUser(user);
-        //    return NoContent();
-        //}
+            _mapper.Map(dto, existUser);
 
-        [HttpDelete("{userId}")]
+            return Ok(_userService.UpdateUser(existUser));
+        }
+
+        [HttpDelete]
+        [Route("api/[controller]/delete-user")]
         public IActionResult DeleteUser(Guid userId)
         {
             _userService.DeleteUser(userId);

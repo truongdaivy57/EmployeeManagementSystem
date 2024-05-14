@@ -1,15 +1,6 @@
 ﻿using EmployeeManagement.Data;
-using EmployeeManagement.Dtos;
 using EmployeeManagement.Model;
 using EmployeeManagement.Repositories;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using static EmployeeManagement.Dtos.RequestSignInDto;
 
 namespace EmployeeManagement.Repository
 {
@@ -43,21 +34,5 @@ namespace EmployeeManagement.Repository
         {
             base.Delete(id);
         }
-
-        //public async Task AddUser(User user)
-        //{
-        //    _context.Users.Add(user);
-        //    await _context.SaveChangesAsync();
-        //}
-
-        //public async Task DeleteUser(int userId)
-        //{
-        //    var user = await _context.Users.FindAsync(userId);
-        //    if (user != null)
-        //    {
-        //        _context.Users.Remove(user);
-        //        await _context.SaveChangesAsync();
-        //    }
-        //}
     }
 }

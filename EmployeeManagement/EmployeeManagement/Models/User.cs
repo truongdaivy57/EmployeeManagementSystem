@@ -15,13 +15,13 @@ namespace EmployeeManagement.Model
         [Required]
         [Column(TypeName = "nvarchar(255)")]
         public string LastName { get; set; }
-        [DefaultValue(true)]
+        [DefaultValue(false)]
         public bool IsActive { get; set; }
         public string? VerificationToken { get; set; }
         public string? ResetToken { get; set; }
         public DateTime ResetTokenExpire {  get; set; }
-        //public Guid DepartmentId { get; set; }
-        //public Department Department { get; set; }
+        public Guid? DepartmentId { get; set; }
+        public Department? Department { get; set; }
         public ICollection<RefreshToken> RefreshTokens { get; set; }
     }
 }

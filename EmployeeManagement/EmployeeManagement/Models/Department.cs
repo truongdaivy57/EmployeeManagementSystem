@@ -11,6 +11,6 @@ namespace EmployeeManagement.Model
         [Required]
         [Column(TypeName = "nvarchar(255)")]
         public string Name { get; set; }
-        //public List<User> Users { get; set; }
+        public List<User> Users { get; set; }
     }
 }

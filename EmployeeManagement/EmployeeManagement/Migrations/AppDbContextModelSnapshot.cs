@@ -124,6 +124,9 @@ namespace EmployeeManagement.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("DepartmentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -185,6 +188,8 @@ namespace EmployeeManagement.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -338,6 +343,15 @@ namespace EmployeeManagement.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("EmployeeManagement.Model.User", b =>
+                {
+                    b.HasOne("EmployeeManagement.Model.Department", "Department")
+                        .WithMany("Users")
+                        .HasForeignKey("DepartmentId");
+
+                    b.Navigation("Department");
+                });
+
             modelBuilder.Entity("EmployeeManagement.Models.RefreshToken", b =>
                 {
                     b.HasOne("EmployeeManagement.Model.User", "User")
@@ -398,6 +412,11 @@ namespace EmployeeManagement.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("EmployeeManagement.Model.Department", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("EmployeeManagement.Model.User", b =>
