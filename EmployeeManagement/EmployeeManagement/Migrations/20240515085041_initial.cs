@@ -194,28 +194,6 @@ namespace EmployeeManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RefreshToken",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Token = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Expire = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RefreshToken", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_RefreshToken_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Salary",
                 columns: table => new
                 {
@@ -231,6 +209,30 @@ namespace EmployeeManagement.Migrations
                     table.PrimaryKey("PK_Salary", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Salary_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserToken",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AccessToken = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExpiredDateAccessToken = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExpiredDateRefreshToken = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserToken", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserToken_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -282,13 +284,13 @@ namespace EmployeeManagement.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RefreshToken_UserId",
-                table: "RefreshToken",
+                name: "IX_Salary_UserId",
+                table: "Salary",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Salary_UserId",
-                table: "Salary",
+                name: "IX_UserToken_UserId",
+                table: "UserToken",
                 column: "UserId");
         }
 
@@ -314,10 +316,10 @@ namespace EmployeeManagement.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "RefreshToken");
+                name: "Salary");
 
             migrationBuilder.DropTable(
-                name: "Salary");
+                name: "UserToken");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

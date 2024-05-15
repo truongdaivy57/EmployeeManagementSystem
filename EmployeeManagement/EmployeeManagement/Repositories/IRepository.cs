@@ -12,5 +12,8 @@ namespace EmployeeManagement.Repositories
         T Update(T entity);
         void Delete(Guid id);
         void SaveChanges();
+        Task InsertAsync(T entity);
+        Task SaveChangesAsync();
+        Task<T> GetSingleByConditionAsync(Expression<Func<T, bool>> predicate);
     }
 }

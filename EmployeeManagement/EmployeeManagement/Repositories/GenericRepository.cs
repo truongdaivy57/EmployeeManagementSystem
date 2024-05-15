@@ -7,10 +7,12 @@ namespace EmployeeManagement.Repositories
     public abstract class GenericRepository<T> : IRepository<T> where T : class
     {
         protected readonly AppDbContext _context;
+        private readonly DbSet<T> _dbSet;
 
         public GenericRepository(AppDbContext context)
         {
             _context = context;
+            _dbSet = context.Set<T>();
         }
 
         public virtual T Add(T entity)
@@ -67,6 +69,21 @@ namespace EmployeeManagement.Repositories
                 query = query.Include(includeProperty);
             }
             return query.ToList();
+        }
+
+        public async Task<T> GetSingleByConditionAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.SingleOrDefaultAsync(predicate);
+        }
+
+        public async Task InsertAsync(T entity)
+        {
+            await _dbSet.AddAsync(entity);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

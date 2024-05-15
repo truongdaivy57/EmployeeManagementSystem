@@ -1,8 +1,7 @@
 ﻿using EmployeeManagement.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using System.Reflection.Emit;
+using EmployeeManagement.Models;
 
 namespace EmployeeManagement.Data
 {
@@ -15,5 +14,7 @@ namespace EmployeeManagement.Data
         public DbSet<Model.Application> Applications { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Salary> Salaries { get; set; }
+        public DbSet<User> Users {  get; set; }
+        public DbSet<UserToken> UserTokens {  get; set; }
     }
 }

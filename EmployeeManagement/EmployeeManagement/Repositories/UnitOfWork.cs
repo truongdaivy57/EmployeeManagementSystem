@@ -1,5 +1,6 @@
 ﻿using EmployeeManagement.Data;
 using EmployeeManagement.Model;
+using EmployeeManagement.Models;
 using EmployeeManagement.Repository;
 
 namespace EmployeeManagement.Repositories
@@ -8,13 +9,16 @@ namespace EmployeeManagement.Repositories
     {
         IRepository<User> UserRepository { get; }
         IRepository<Department> DepartmentRepository { get; }
+        IRepository<UserToken> UserTokenRepository { get; }
         void SaveChanges();
+        Task CommitAsync();
     }
 
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _context;
         private IRepository<User> _userRepository;
+        private IRepository<UserToken> _userTokenRepository;
         private IRepository<Department> _departmentRepository;
 
         public UnitOfWork(AppDbContext context)
@@ -35,6 +39,19 @@ namespace EmployeeManagement.Repositories
             }
         }
 
+        public IRepository<UserToken> UserTokenRepository
+        {
+            get
+            {
+                if (_userTokenRepository == null)
+                {
+                    _userTokenRepository = new UserTokenRepository(_context);
+                }
+
+                return _userTokenRepository;
+            }
+        }
+
         public IRepository<Department> DepartmentRepository
         {
             get
@@ -46,6 +63,11 @@ namespace EmployeeManagement.Repositories
 
                 return _departmentRepository;
             }
+        }
+
+        public async Task CommitAsync()
+        {
+            await _context.SaveChangesAsync();
         }
 
         public void SaveChanges()

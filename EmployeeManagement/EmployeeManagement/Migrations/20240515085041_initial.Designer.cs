@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmployeeManagement.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240514072556_initial")]
+    [Migration("20240515085041_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -205,21 +205,30 @@ namespace EmployeeManagement.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("EmployeeManagement.Models.RefreshToken", b =>
+            modelBuilder.Entity("EmployeeManagement.Models.UserToken", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("AccessToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Expire")
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiredDateAccessToken")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiredDateRefreshToken")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Token")
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UserId")
@@ -229,7 +238,7 @@ namespace EmployeeManagement.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshToken");
+                    b.ToTable("UserToken");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -355,10 +364,10 @@ namespace EmployeeManagement.Migrations
                     b.Navigation("Department");
                 });
 
-            modelBuilder.Entity("EmployeeManagement.Models.RefreshToken", b =>
+            modelBuilder.Entity("EmployeeManagement.Models.UserToken", b =>
                 {
                     b.HasOne("EmployeeManagement.Model.User", "User")
-                        .WithMany("RefreshTokens")
+                        .WithMany("UserTokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -424,7 +433,7 @@ namespace EmployeeManagement.Migrations
 
             modelBuilder.Entity("EmployeeManagement.Model.User", b =>
                 {
-                    b.Navigation("RefreshTokens");
+                    b.Navigation("UserTokens");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EmployeeManagement.Dtos;
+using EmployeeManagement.Helper;
 using EmployeeManagement.Service;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,11 +11,13 @@ namespace EmployeeManagement.Controllers
     {
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
+        private readonly ITokenHandler _tokenHandler;
 
-        public UserController(IUserService userService, IMapper mapper)
+        public UserController(IUserService userService, IMapper mapper, ITokenHandler tokenHandler)
         {
             _userService = userService;
             _mapper = mapper;
+            _tokenHandler = tokenHandler;
         }
 
         [HttpPost]
@@ -43,12 +46,19 @@ namespace EmployeeManagement.Controllers
         {
             var result = await _userService.SignInAsync(dto);
 
-            if (string.IsNullOrEmpty(result))
+            if (result == null)
             {
                 return Unauthorized();
             }
 
             return Ok(result);
+        }
+
+        [HttpPost]
+        [Route("api/[controller]/refresh-token")]
+        public async Task<IActionResult> RefreshToken(RefreshTokenDto token)
+        {
+            return Ok(await _tokenHandler.ValidateRefreshToken(token.RefreshToken));
         }
 
         [HttpGet]

@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using EmployeeManagement.Helper;
 using EmployeeManagement.Services;
+using EmployeeManagement.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,12 +32,16 @@ builder.Services.AddIdentity<User, Role>().AddEntityFrameworkStores<AppDbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserTokenService, UserTokenService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IRepository<User>, UserRepository>();
+builder.Services.AddScoped<IRepository<UserToken>, UserTokenRepository>();
 builder.Services.AddScoped<IRepository<Department>, DepartmentRepository>();
+builder.Services.AddScoped<ITokenHandler, EmployeeManagement.Helper.TokenHandler>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<SendMail>();
 builder.Services.AddAutoMapper(typeof(AutoMapperConfig).Assembly);
+builder.Services.AddScoped(provider => new Lazy<ITokenHandler>(() => provider.GetRequiredService<ITokenHandler>()));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

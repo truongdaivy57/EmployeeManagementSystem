@@ -10,6 +10,7 @@ namespace EmployeeManagement.Helper
         {
             CreateMap<UserDto, User>().ReverseMap();
             CreateMap<DepartmentDto, Department>().ReverseMap();
+            CreateMap<JwtDto, User>().ReverseMap();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using EmployeeManagement.Service;
+﻿using EmployeeManagement.Helper;
+using EmployeeManagement.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -33,7 +34,7 @@ namespace EmployeeManagement.Configuration
                 {
                     OnTokenValidated = context =>
                     {
-                        var tokenHandler = context.HttpContext.RequestServices.GetRequiredService<IUserService>();
+                        var tokenHandler = context.HttpContext.RequestServices.GetRequiredService<ITokenHandler>();
                         return tokenHandler.ValidateToken(context);
                     },
                     OnAuthenticationFailed = context =>

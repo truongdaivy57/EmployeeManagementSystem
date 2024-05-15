@@ -22,6 +22,6 @@ namespace EmployeeManagement.Model
         public DateTime ResetTokenExpire {  get; set; }
         public Guid? DepartmentId { get; set; }
         public Department? Department { get; set; }
-        public ICollection<RefreshToken> RefreshTokens { get; set; }
+        public ICollection<UserToken> UserTokens { get; set; }
     }
 }
