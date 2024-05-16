@@ -4,6 +4,7 @@ using EmployeeManagement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmployeeManagement.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240516072515_in1")]
+    partial class in1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -175,9 +178,9 @@ namespace EmployeeManagement.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("b935613f-57bc-4a62-9957-d02eaf41710f"),
+                            Id = new Guid("3aa9eab5-bfdb-453a-94d7-7d19e2cd5956"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "9b82eb59-0c1e-46bf-88fd-2c973c617f9b",
+                            ConcurrencyStamp = "e273ce96-dd4a-431f-9c46-ed750f3e4b3c",
                             Email = "admin@gmail.com",
                             EmailConfirmed = true,
                             FirstName = "admin",
@@ -186,10 +189,10 @@ namespace EmployeeManagement.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@GMAIL.COM",
                             NormalizedUserName = "ADMIN@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBtA0rTuFKpo/DSQ34flJv85CYCvKKcvAoftzuj3G+OtyAPi3zYvnH3CCklPDN8TZg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHhc2tk8/2lw/REiRawv99zHD+MolS1A2NnWm16AKFICcmrZJ5+zSGvXusfpC9EJCg==",
                             PhoneNumberConfirmed = false,
                             ResetTokenExpire = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            SecurityStamp = "39faf954-aeed-4dfa-99fc-3b8d4e5ddfee",
+                            SecurityStamp = "371582d6-5a9b-45ff-a5f9-1c24d08a5a57",
                             TwoFactorEnabled = false,
                             UserName = "admin@gmail.com"
                         });
@@ -225,19 +228,19 @@ namespace EmployeeManagement.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("1651528e-187f-4aad-a4e1-5e33405f86d8"),
+                            Id = new Guid("95238d51-f271-40b9-b147-c0c7d00e14ed"),
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = new Guid("b1a823ca-b67d-4f93-a450-c3509fbd8686"),
+                            Id = new Guid("c84a6f84-852a-467c-92d5-1ef666205b3f"),
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = new Guid("8bfdcfc7-4a58-4b7c-b3ad-90b992212bb3"),
+                            Id = new Guid("052c78e9-1e99-4bff-8d57-5f152a79fa84"),
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         });
@@ -325,13 +328,6 @@ namespace EmployeeManagement.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = new Guid("b935613f-57bc-4a62-9957-d02eaf41710f"),
-                            RoleId = new Guid("1651528e-187f-4aad-a4e1-5e33405f86d8")
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>

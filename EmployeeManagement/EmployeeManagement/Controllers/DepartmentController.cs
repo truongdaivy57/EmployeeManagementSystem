@@ -3,13 +3,14 @@ using EmployeeManagement.Dtos;
 using EmployeeManagement.Model;
 using EmployeeManagement.Service;
 using EmployeeManagement.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeManagement.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     public class DepartmentController : ControllerBase
     {

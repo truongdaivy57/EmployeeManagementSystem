@@ -35,39 +35,41 @@ namespace EmployeeManagement.Helper
 
         public async Task<(string, DateTime)> CreateAccessToken(User user)
         {
-            DateTime expiredToken = DateTime.Now.AddMinutes(15);
+            DateTime issuedAt = DateTime.UtcNow;
+            DateTime expiresAt = issuedAt.AddMinutes(15);
 
             var roles = await _userManager.GetRolesAsync(user);
 
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString(), ClaimValueTypes.String, _configuration["JWT:ValidIssuer"]),
-                new Claim(JwtRegisteredClaimNames.Iss, _configuration["JWT:ValidIssuer"], ClaimValueTypes.String, _configuration["JWT:ValidIssuer"]),
-                new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToString(), ClaimValueTypes.Integer64, _configuration["JWT:ValidIssuer"]),
-                new Claim(JwtRegisteredClaimNames.Exp, DateTime.Now.AddMinutes(15).ToString("yyyy/MM/dd hh:mm:ss"), ClaimValueTypes.String, _configuration["JWT:ValidIssuer"]),
-                new Claim(ClaimTypes.Name, user.UserName.ToString(), ClaimValueTypes.String, _configuration["JWT:ValidIssuer"]),
-                new Claim(ClaimTypes.Email, user.Email),
-
+                new Claim(JwtRegisteredClaimNames.Iss, _configuration["JWT:ValidIssuer"], ClaimValueTypes.String),
+                new Claim(JwtRegisteredClaimNames.Iat, issuedAt.ToString(), ClaimValueTypes.Integer64),
+                new Claim(JwtRegisteredClaimNames.Exp, expiresAt.ToString(), ClaimValueTypes.Integer64),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email, null, _configuration["JWT:ValidIssuer"]),
             }
             .Union(roles.Select(x => new Claim(ClaimTypes.Role, x)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
             var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
-            var tokenInfo = new JwtSecurityToken(
-                issuer: _configuration["JWT:ValidIssuer"],
-                audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddMinutes(15),
-                claims: claims,
-                notBefore: DateTime.Now,
-                signingCredentials: credential
-                );
 
-            string accessToken = new JwtSecurityTokenHandler().WriteToken(tokenInfo);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Issuer = _configuration["JWT:ValidIssuer"],
+                Audience = _configuration["JWT:ValidAudience"],
+                Subject = new ClaimsIdentity(claims),
+                Expires = expiresAt,
+                NotBefore = issuedAt,
+                SigningCredentials = credential
+            };
 
-            await _userManager.SetAuthenticationTokenAsync(user, "AccessTokenProvider", "AccessToken", accessToken);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            string accessToken = tokenHandler.CreateEncodedJwt(tokenDescriptor);
 
-            return await Task.FromResult((accessToken, expiredToken));
+            return (accessToken, expiresAt);
         }
+
 
         public async Task<(string, string, DateTime)> CreateRefreshToken(User user)
         {
