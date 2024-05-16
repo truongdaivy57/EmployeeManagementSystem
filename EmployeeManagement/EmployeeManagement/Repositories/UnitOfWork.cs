@@ -19,9 +19,11 @@ namespace EmployeeManagement.Repositories
         private IRepository<User> _userRepository;
         private IRepository<Department> _departmentRepository;
 
-        public UnitOfWork(AppDbContext context)
+        public UnitOfWork(AppDbContext context, IRepository<User> userRepository, IRepository<Department> departmentRepository)
         {
             _context = context;
+            _userRepository = userRepository;
+            _departmentRepository = departmentRepository;
         }
 
         public IRepository<User> UserRepository

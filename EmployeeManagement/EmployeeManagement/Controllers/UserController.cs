@@ -117,5 +117,12 @@ namespace EmployeeManagement.Controllers
         {
             return await _userService.ResetPassword(email, otp, newPassword);
         }
+
+        [HttpPost]
+        [Route("api/[controller]/sign-out")]
+        public async Task<IActionResult> SignOut()
+        {
+            return await _userService.SignOut();
+        }
     }
 }

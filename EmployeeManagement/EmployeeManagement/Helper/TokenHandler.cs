@@ -23,13 +23,11 @@ namespace EmployeeManagement.Helper
     public class TokenHandler : ITokenHandler
     {
         private readonly IConfiguration _configuration;
-        private readonly IUserService _userService;
         private readonly UserManager<User> _userManager;
 
-        public TokenHandler(IConfiguration configuration, IUserService userService, UserManager<User> userManager)
+        public TokenHandler(IConfiguration configuration, UserManager<User> userManager)
         {
             _configuration = configuration;
-            _userService = userService;
             _userManager = userManager;
         }
 
