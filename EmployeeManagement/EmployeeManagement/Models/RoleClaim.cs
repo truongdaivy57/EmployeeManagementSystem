@@ -10,10 +10,6 @@ namespace EmployeeManagement.Models
         [Key]
         public Guid Id { get; set; }
 
-        [ForeignKey("RoleId")]
-        public Guid RoleId { get; set; }
-        public Role Role { get; set; }
-
         public string? ClaimType { get; set; }
         public string? ClaimValue { get; set; }
     }

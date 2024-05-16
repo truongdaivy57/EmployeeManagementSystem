@@ -5,6 +5,7 @@ using EmployeeManagement.Models;
 using EmployeeManagement.Service;
 using EmployeeManagement.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -23,18 +24,20 @@ namespace EmployeeManagement.Helper
     {
         private readonly IConfiguration _configuration;
         private readonly IUserService _userService;
-        private readonly IUserTokenService _userTokenService;
+        private readonly UserManager<User> _userManager;
 
-        public TokenHandler(IConfiguration configuration, IUserService userService, IUserTokenService userTokenService)
+        public TokenHandler(IConfiguration configuration, IUserService userService, UserManager<User> userManager)
         {
             _configuration = configuration;
             _userService = userService;
-            _userTokenService = userTokenService;
+            _userManager = userManager;
         }
 
         public async Task<(string, DateTime)> CreateAccessToken(User user)
         {
             DateTime expiredToken = DateTime.Now.AddMinutes(15);
+
+            var roles = await _userManager.GetRolesAsync(user);
 
             var claims = new List<Claim>
             {
@@ -44,7 +47,9 @@ namespace EmployeeManagement.Helper
                 new Claim(JwtRegisteredClaimNames.Exp, DateTime.Now.AddMinutes(15).ToString("yyyy/MM/dd hh:mm:ss"), ClaimValueTypes.String, _configuration["JWT:ValidIssuer"]),
                 new Claim(ClaimTypes.Name, user.UserName.ToString(), ClaimValueTypes.String, _configuration["JWT:ValidIssuer"]),
                 new Claim(ClaimTypes.Email, user.Email),
-            };
+
+            }
+            .Union(roles.Select(x => new Claim(ClaimTypes.Role, x)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
             var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
@@ -56,9 +61,12 @@ namespace EmployeeManagement.Helper
                 notBefore: DateTime.Now,
                 signingCredentials: credential
                 );
-            string token = new JwtSecurityTokenHandler().WriteToken(tokenInfo);
 
-            return await Task.FromResult((token, expiredToken));
+            string accessToken = new JwtSecurityTokenHandler().WriteToken(tokenInfo);
+
+            await _userManager.SetAuthenticationTokenAsync(user, "AccessTokenProvider", "AccessToken", accessToken);
+
+            return await Task.FromResult((accessToken, expiredToken));
         }
 
         public async Task<(string, string, DateTime)> CreateRefreshToken(User user)
@@ -72,7 +80,8 @@ namespace EmployeeManagement.Helper
                 new Claim(JwtRegisteredClaimNames.Iss, _configuration["JWT:ValidIssuer"], ClaimValueTypes.String, _configuration["JWT:ValidIssuer"]),
                 new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64, _configuration["JWT:ValidIssuer"]),
                 new Claim(JwtRegisteredClaimNames.Exp, ((DateTimeOffset)expiredToken).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64, _configuration["JWT:ValidIssuer"]),
-                new Claim(ClaimTypes.SerialNumber, code, ClaimValueTypes.String, _configuration["JWT:ValidIssuer"])
+                new Claim(ClaimTypes.SerialNumber, code, ClaimValueTypes.String, _configuration["JWT:ValidIssuer"]),
+                new Claim(ClaimTypes.Email, user.Email),
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
@@ -87,6 +96,8 @@ namespace EmployeeManagement.Helper
             );
 
             string refreshToken = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+
+            await _userManager.SetAuthenticationTokenAsync(user, "RefreshTokenProvider", "RefreshToken", refreshToken);
 
             return await Task.FromResult((code, refreshToken, expiredToken));
         }
@@ -147,15 +158,14 @@ namespace EmployeeManagement.Helper
 
             if (claimPriciple == null) return new();
 
-            string code = claimPriciple.Claims.FirstOrDefault(x => x.Type == ClaimTypes.SerialNumber)?.Value;
+            string email = claimPriciple.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
 
-            if (string.IsNullOrEmpty(code)) return new();
+            var user = await _userManager.FindByEmailAsync(email);
 
-            UserToken userToken = await _userTokenService.CheckRefreshToken(code);
+            var token =  await _userManager.GetAuthenticationTokenAsync(user, "AccessTokenProvider", "AccessToken");
 
-            if (userToken != null)
+            if (!string.IsNullOrEmpty(token))
             {
-                User user = _userService.GetUserById(userToken.UserId);
 
                 (string newAccessToken, DateTime createdDate) = await CreateAccessToken(user);
                 (string codeRefreshToken, string newRefreshToken, DateTime newCreatedDate) = await CreateRefreshToken(user);
@@ -166,6 +176,7 @@ namespace EmployeeManagement.Helper
                     RefreshToken = newRefreshToken,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
+                    AccessTokenExpired = createdDate.ToString("yyyy-MM-dd hh:mm:ss")
                 };
             }
 

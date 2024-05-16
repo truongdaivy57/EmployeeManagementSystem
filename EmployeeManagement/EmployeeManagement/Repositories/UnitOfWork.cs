@@ -9,7 +9,6 @@ namespace EmployeeManagement.Repositories
     {
         IRepository<User> UserRepository { get; }
         IRepository<Department> DepartmentRepository { get; }
-        IRepository<UserToken> UserTokenRepository { get; }
         void SaveChanges();
         Task CommitAsync();
     }
@@ -18,7 +17,6 @@ namespace EmployeeManagement.Repositories
     {
         private readonly AppDbContext _context;
         private IRepository<User> _userRepository;
-        private IRepository<UserToken> _userTokenRepository;
         private IRepository<Department> _departmentRepository;
 
         public UnitOfWork(AppDbContext context)
@@ -36,19 +34,6 @@ namespace EmployeeManagement.Repositories
                 }
 
                 return _userRepository;
-            }
-        }
-
-        public IRepository<UserToken> UserTokenRepository
-        {
-            get
-            {
-                if (_userTokenRepository == null)
-                {
-                    _userTokenRepository = new UserTokenRepository(_context);
-                }
-
-                return _userTokenRepository;
             }
         }
 

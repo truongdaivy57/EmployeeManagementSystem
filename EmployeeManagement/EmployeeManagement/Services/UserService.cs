@@ -34,15 +34,14 @@ namespace EmployeeManagement.Service
     public class UserService : IUserService
     {
         private readonly UserManager<User> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<IdentityRole<Guid>> _roleManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly SendMail _sendMail;
         private readonly IMapper _mapper;
         private readonly Lazy<ITokenHandler> _tokenHandler;
-        private readonly IUserTokenService _userTokenService;
 
-        public UserService(UserManager<User> userManager, SignInManager<User> signInManager, IUnitOfWork unitOfWork, SendMail sendMail, IMapper mapper, Lazy<ITokenHandler> tokenHandler, IUserTokenService userTokenService, RoleManager<IdentityRole> roleManager)
+        public UserService(UserManager<User> userManager, SignInManager<User> signInManager, IUnitOfWork unitOfWork, SendMail sendMail, IMapper mapper, Lazy<ITokenHandler> tokenHandler, RoleManager<IdentityRole<Guid>> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -50,7 +49,6 @@ namespace EmployeeManagement.Service
             _sendMail = sendMail;
             _mapper = mapper;
             _tokenHandler = tokenHandler;
-            _userTokenService = userTokenService;
             _roleManager = roleManager;
         }
 
@@ -65,6 +63,7 @@ namespace EmployeeManagement.Service
             {
                 return new BadRequestObjectResult("\"You need to confirm your email.\"");
             }
+
             var result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, false, false);
 
             if (!result.Succeeded)
@@ -75,17 +74,17 @@ namespace EmployeeManagement.Service
             (string accessToken, DateTime expiredDateAccess) = await _tokenHandler.Value.CreateAccessToken(user);
             (string code, string refreshToken, DateTime expiredDateRefresh) = await _tokenHandler.Value.CreateRefreshToken(user);
 
-            await _userTokenService.SaveToken(new UserToken
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken,
-                ExpiredDateAccessToken = expiredDateAccess,
-                ExpiredDateRefreshToken = expiredDateRefresh,
-                CreatedDate = DateTime.Now,
-                UserId = user.Id,
-                IsActive = true,
-                Key = code
-            });
+            //await _userTokenService.SaveToken(new UserToken
+            //{
+            //    AccessToken = accessToken,
+            //    RefreshToken = refreshToken,
+            //    ExpiredDateAccessToken = expiredDateAccess,
+            //    ExpiredDateRefreshToken = expiredDateRefresh,
+            //    CreatedDate = DateTime.Now,
+            //    UserId = user.Id,
+            //    IsActive = true,
+            //    Key = code
+            //});
 
             return new OkObjectResult(new JwtDto
             {
@@ -93,6 +92,7 @@ namespace EmployeeManagement.Service
                 RefreshToken = refreshToken,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                AccessTokenExpired = expiredDateAccess.ToString("yyyy-MM-dd hh:mm:ss")
             });
         }
 
@@ -120,6 +120,16 @@ namespace EmployeeManagement.Service
             };
 
             var result = await _userManager.CreateAsync(user, dto.Password);
+
+            if (result.Succeeded)
+            {
+                if (!await _roleManager.RoleExistsAsync(AppRole.Employee))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole<Guid>(AppRole.Employee));
+                }
+
+                await _userManager.AddToRoleAsync(user, AppRole.Employee);
+            }
 
             if (result.Succeeded)
             {

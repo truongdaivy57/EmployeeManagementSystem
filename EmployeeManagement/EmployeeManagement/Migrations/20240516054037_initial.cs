@@ -215,30 +215,6 @@ namespace EmployeeManagement.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "UserToken",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AccessToken = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ExpiredDateAccessToken = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ExpiredDateRefreshToken = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserToken", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserToken_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -287,11 +263,6 @@ namespace EmployeeManagement.Migrations
                 name: "IX_Salary_UserId",
                 table: "Salary",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserToken_UserId",
-                table: "UserToken",
-                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -317,9 +288,6 @@ namespace EmployeeManagement.Migrations
 
             migrationBuilder.DropTable(
                 name: "Salary");
-
-            migrationBuilder.DropTable(
-                name: "UserToken");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

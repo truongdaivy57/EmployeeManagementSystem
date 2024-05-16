@@ -202,46 +202,6 @@ namespace EmployeeManagement.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("EmployeeManagement.Models.UserToken", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AccessToken")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ExpiredDateAccessToken")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ExpiredDateRefreshToken")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RefreshToken")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserToken");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
@@ -365,17 +325,6 @@ namespace EmployeeManagement.Migrations
                     b.Navigation("Department");
                 });
 
-            modelBuilder.Entity("EmployeeManagement.Models.UserToken", b =>
-                {
-                    b.HasOne("EmployeeManagement.Model.User", "User")
-                        .WithMany("UserTokens")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("EmployeeManagement.Model.Role", null)
@@ -430,11 +379,6 @@ namespace EmployeeManagement.Migrations
             modelBuilder.Entity("EmployeeManagement.Model.Department", b =>
                 {
                     b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("EmployeeManagement.Model.User", b =>
-                {
-                    b.Navigation("UserTokens");
                 });
 #pragma warning restore 612, 618
         }
