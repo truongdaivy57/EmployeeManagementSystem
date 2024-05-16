@@ -34,6 +34,7 @@ namespace EmployeeManagement.Service
     public class UserService : IUserService
     {
         private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly SendMail _sendMail;
@@ -41,7 +42,7 @@ namespace EmployeeManagement.Service
         private readonly Lazy<ITokenHandler> _tokenHandler;
         private readonly IUserTokenService _userTokenService;
 
-        public UserService(UserManager<User> userManager, SignInManager<User> signInManager, IUnitOfWork unitOfWork, SendMail sendMail, IMapper mapper, Lazy<ITokenHandler> tokenHandler, IUserTokenService userTokenService)
+        public UserService(UserManager<User> userManager, SignInManager<User> signInManager, IUnitOfWork unitOfWork, SendMail sendMail, IMapper mapper, Lazy<ITokenHandler> tokenHandler, IUserTokenService userTokenService, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -50,6 +51,7 @@ namespace EmployeeManagement.Service
             _mapper = mapper;
             _tokenHandler = tokenHandler;
             _userTokenService = userTokenService;
+            _roleManager = roleManager;
         }
 
         public async Task<IActionResult> SignInAsync(RequestSignInDto dto)
