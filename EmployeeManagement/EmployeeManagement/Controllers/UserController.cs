@@ -3,6 +3,7 @@ using EmployeeManagement.Dtos;
 using EmployeeManagement.Helper;
 using EmployeeManagement.Service;
 using Microsoft.AspNetCore.Mvc;
+using static System.Net.WebRequestMethods;
 
 namespace EmployeeManagement.Controllers
 {
@@ -101,6 +102,20 @@ namespace EmployeeManagement.Controllers
         {
             _userService.DeleteUser(userId);
             return Ok(_userService.GetAllUsers());
+        }
+
+        [HttpPost]
+        [Route("api/[controller]/forgot-password")]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            return await _userService.ForgotPassword(email);
+        }
+
+        [HttpPut]
+        [Route("api/[controller]/reset-password")]
+        public async Task<IActionResult> RestPassword(string email, string otp, string newPassword)
+        {
+            return await _userService.ResetPassword(email, otp, newPassword);
         }
     }
 }

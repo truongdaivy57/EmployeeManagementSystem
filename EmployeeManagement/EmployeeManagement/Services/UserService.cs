@@ -29,6 +29,8 @@ namespace EmployeeManagement.Service
         void DeleteUser(Guid userId);
         Task<IdentityResult> SignUpAsync(RequestSignUpDto dto);
         Task<IActionResult> SignInAsync(RequestSignInDto dto);
+        Task<IActionResult> ForgotPassword(string email);
+        Task<IActionResult> ResetPassword(string email, string otp, string newPassword);
     }
 
     public class UserService : IUserService
@@ -40,8 +42,9 @@ namespace EmployeeManagement.Service
         private readonly SendMail _sendMail;
         private readonly IMapper _mapper;
         private readonly Lazy<ITokenHandler> _tokenHandler;
+        private readonly IPasswordHasher<User> _passwordHasher;
 
-        public UserService(UserManager<User> userManager, SignInManager<User> signInManager, IUnitOfWork unitOfWork, SendMail sendMail, IMapper mapper, Lazy<ITokenHandler> tokenHandler, RoleManager<IdentityRole<Guid>> roleManager)
+        public UserService(UserManager<User> userManager, SignInManager<User> signInManager, IUnitOfWork unitOfWork, SendMail sendMail, IMapper mapper, Lazy<ITokenHandler> tokenHandler, RoleManager<IdentityRole<Guid>> roleManager, IPasswordHasher<User> passwordHasher)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -50,6 +53,7 @@ namespace EmployeeManagement.Service
             _mapper = mapper;
             _tokenHandler = tokenHandler;
             _roleManager = roleManager;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<IActionResult> SignInAsync(RequestSignInDto dto)
@@ -192,5 +196,56 @@ namespace EmployeeManagement.Service
             _unitOfWork.UserRepository.Delete(userId);
             _unitOfWork.SaveChanges();
         }
+
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            string otp = GenerateOtp();
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if(user == null)
+            {
+                return new NotFoundResult();
+            }
+
+            user.VerificationToken = otp;
+            await _userManager.UpdateAsync(user);
+            _sendMail.SendEmail(user.Email, "Reset Password", $"Your OTP code is: {otp}");
+            return new OkObjectResult("Your reset password otp is sent. Please check your email.");
+        }
+
+        public async Task<IActionResult> ResetPassword(string email, string otp, string newPassword)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                return new NotFoundResult();
+            }
+
+            if (user.VerificationToken != otp)
+            {
+                return new BadRequestObjectResult("Invalid OTP.");
+            }
+
+            if (_passwordHasher.VerifyHashedPassword(user, user.PasswordHash, newPassword) == PasswordVerificationResult.Success)
+            {
+                return new BadRequestObjectResult("Your new password must be different.");
+            }
+
+            var passwordValidator = _userManager.PasswordValidators.FirstOrDefault();
+            var validationResult = await passwordValidator.ValidateAsync(_userManager, user, newPassword);
+            if (!validationResult.Succeeded)
+            {
+                var errorMessage = string.Join(", ", validationResult.Errors.Select(error => error.Description));
+                return new BadRequestObjectResult(errorMessage);
+            }
+
+            user.VerificationToken = null;
+            user.PasswordHash = _passwordHasher.HashPassword(user, newPassword);
+            await _userManager.UpdateAsync(user);
+
+            return new OkObjectResult("Your password has been reset.");
+        }
+
     }
 }
