@@ -86,6 +86,8 @@ builder.Services.AddScoped<ITokenHandler, EmployeeManagement.Helper.TokenHandler
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<SendMail>();
 builder.Services.AddAutoMapper(typeof(AutoMapperConfig).Assembly);
+builder.Services.AddScoped<IRoleClaimService, RoleClaimService>();
+builder.Services.AddScoped<IUserClaimService, UserClaimService>();
 
 // Register Lazy services to avoid circular dependencies
 builder.Services.AddScoped(provider => new Lazy<ITokenHandler>(() => provider.GetRequiredService<ITokenHandler>()));
